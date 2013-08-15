@@ -1,3 +1,10 @@
+function writeError(message){
+  document.write("Error: " + message + "<br>");
+}
+
+function matchPosition (obj1, obj2){
+  return (obj1.position[0] == obj2.position[0] && obj1.position[1] == obj2.position[1]);
+}
 /**
  * Создает экземпляр космического корабля.
  * @name Vessel
@@ -5,7 +12,12 @@
  * @param {Number}[] position Местоположение корабля.
  * @param {Number} capacity Грузоподъемность корабля.
  */
-function Vessel(name, position, capacity) {}
+function Vessel(name, position, capacity) {
+  this.name = name;
+  this.position = position;
+  this.capacity = capacity;
+  this.ocupied = 0;
+}
 
 /**
  * Выводит текущее состояние корабля: имя, местоположение, доступную грузоподъемность.
@@ -15,20 +27,40 @@ function Vessel(name, position, capacity) {}
  * vesserl.report(); // Грузовой корабль. Местоположение: 50,20. Груз: 200т.
  * @name Vessel.report
  */
-Vessel.prototype.report = function () {}
+Vessel.prototype.report = function () {
+  var text = 'Корабль "' + this.name + '". Местоположение: ' + this.position + ".";
+  if (this.getOccupiedSpace() == 0) {
+    text += " Товаров нет."
+  } else {
+    text += " Занято: " + this.getOccupiedSpace() + " из " + this.capacity + "т.";
+  }
+  document.write(text + "<br>");
+}
 
 /**
  * Выводит количество свободного места на корабле.
  * @name Vessel.getFreeSpace
  */
-Vessel.prototype.getFreeSpace = function () {}
+Vessel.prototype.getFreeSpace = function () {
+  return (this.capacity - this.ocupied);
+}
 
 /**
  * Выводит количество занятого места на корабле.
  * @name Vessel.getOccupiedSpace
  */
-Vessel.prototype.getOccupiedSpace = function () {}
+Vessel.prototype.getOccupiedSpace = function () {
+  return this.ocupied;
+}
 
+Vessel.prototype.loadCargoTo = function (cargoWeight) {
+  if (cargoWeight <= this.getFreeSpace()) {
+    this.ocupied += cargoWeight;
+  } else {
+    writeError("Недостаточно места на корабле!");
+  }
+  return this;
+}
 /**
  * Переносит корабль в указанную точку.
  * @param {Number}[]|Planet newPosition Новое местоположение корабля.
@@ -39,7 +71,18 @@ Vessel.prototype.getOccupiedSpace = function () {}
  * vessel.flyTo(earth);
  * @name Vessel.report
  */
-Vessel.prototype.flyTo = function (newPosition) {}
+Vessel.prototype.flyTo = function (newPosition) {
+  if (newPosition instanceof Planet) {
+    this.position = newPosition.position;
+  } else {
+    if ((typeof newPosition[0] == "number") && (typeof newPosition[1] == "number") && (newPosition.length == 2)) {
+      this.position = newPosition;
+    } else {
+      writeError("Неверные координаты!");
+    }
+  }
+  return this;
+}
 
 /**
  * Создает экземпляр планеты.
